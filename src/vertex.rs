@@ -60,6 +60,37 @@ pub struct Mesh {
     verts: Vec<Vertex>,
     index: Indeces,
 }
+
+impl Mesh {
+    pub fn pentagon() -> Self {
+        Self {
+            name: "PENTAGON".to_string(),
+            verts: vec![
+                Vertex {
+                    position: [-0.0868241, 0.49240386, 0.0],
+                    color: [0.5, 0.0, 0.5],
+                },
+                Vertex {
+                    position: [-0.49513406, 0.06958647, 0.0],
+                    color: [0.5, 0.0, 0.5],
+                },
+                Vertex {
+                    position: [-0.21918549, -0.44939706, 0.0],
+                    color: [0.5, 0.0, 0.5],
+                },
+                Vertex {
+                    position: [0.35966998, -0.3473291, 0.0],
+                    color: [0.5, 0.0, 0.5],
+                },
+                Vertex {
+                    position: [0.44147372, 0.2347359, 0.0],
+                    color: [0.5, 0.0, 0.5],
+                },
+            ],
+            index: Indeces::Index(vec![0, 1, 4, 1, 2, 4, 2, 3, 4, 0]),
+        }
+    }
+}
 pub struct RenderObject {
     pub vertex_buffer: wgpu::Buffer,
     pub index_buffer: Option<wgpu::Buffer>,

@@ -7,13 +7,14 @@ use winit::{
 
 mod state;
 mod vertex; 
+mod texture;
 
 fn main() {
     env_logger::init();
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_resizable(false)
-        .with_inner_size(LogicalSize::new(800, 600))
+        .with_inner_size(LogicalSize::new(800, 800))
         .build(&event_loop)
         .unwrap();
     let mut state = pollster::block_on(state::State::new(&window));

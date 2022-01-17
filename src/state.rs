@@ -127,7 +127,38 @@ impl State {
             multiview: None,
         });
         let triangle_object = vertex::RenderObject::from_mesh(vertex::Mesh::triangle(), &device);
-        let objects_vec = vec![triangle_object];
+        let pentagon_object = vertex::RenderObject::from_mesh(vertex::Mesh::pentagon(), &device);
+        let (diffuse_rgba, diffuse_texture, dimensions, texture_size) =
+            crate::texture::load_tree_texture(&device);
+
+        let diffuse_texture_view =
+            diffuse_texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let diffuse_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+            address_mode_u: wgpu::AddressMode::ClampToEdge,
+            address_mode_v: wgpu::AddressMode::ClampToEdge,
+            address_mode_w: wgpu::AddressMode::ClampToEdge,
+            mag_filter: wgpu::FilterMode::Linear,
+            min_filter: wgpu::FilterMode::Nearest,
+            mipmap_filter: wgpu::FilterMode::Nearest,
+            ..Default::default()
+        });
+
+        queue.write_texture(
+            wgpu::ImageCopyTexture {
+                texture: &&diffuse_texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            &diffuse_rgba,
+            wgpu::ImageDataLayout {
+                offset: 0,
+                bytes_per_row: std::num::NonZeroU32::new(4 * dimensions.0),
+                rows_per_image: std::num::NonZeroU32::new(dimensions.1),
+            },
+            texture_size,
+        );
+        let objects_vec = vec![pentagon_object];
         let count = objects_vec.iter().map(|o| o.count).sum();
         Self {
             clear_color: color,
@@ -186,9 +217,15 @@ impl State {
             });
             render_pass.set_pipeline(&self.render_pipeline);
             for object in &self.objects_vec {
-                render_pass.set_vertex_buffer(0, object.vertex_buffer.slice(..))
+                render_pass.set_vertex_buffer(0, object.vertex_buffer.slice(..));
+                match &object.index_buffer {
+                    Some(buffer) => {
+                        render_pass.set_index_buffer(buffer.slice(..), wgpu::IndexFormat::Uint32)
+                    }
+                    None => (),
+                }
             }
-            render_pass.draw(0..self.objects_count, 0..1);
+            render_pass.draw_indexed(0..self.objects_vec[0].count + 5, 0, 0..1);
         }
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
