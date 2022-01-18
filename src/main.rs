@@ -38,7 +38,7 @@ fn main() {
             WindowEvent::CursorMoved{position,.. } =>{
                     let n = (position.x.powi(2) + position.y.powi(2)).sqrt();
                 let (x,y) = (position.x / n, position.y / n);
-                state.clear_color = wgpu::Color{r: x, g: y, b: 0.0, a: 1.0};
+                state.clear_color = wgpu::Color{r: x, g: y, b: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis() as f64, a: 1.0};
                 window.request_redraw()
             },
             WindowEvent::Resized(physical_size) => {
